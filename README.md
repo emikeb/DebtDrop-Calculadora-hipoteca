@@ -1,5 +1,7 @@
 # Calculadora Hipotecaria DebtDrop
 
+[![codecov](https://codecov.io/gh/emikeb/DebtDrop/graph/badge.svg?token=5AKV7R4JXK)](https://codecov.io/gh/emikeb/DebtDrop)
+
 <img src="./assets/image.png" alt="Demostración de DebtDrop" width="500">
 
 ## Arquitectura
