@@ -1,6 +1,6 @@
 # Calculadora Hipotecaria DebtDrop
 
-Una calculadora de hipotecas
+<img src="./assets/image.png" alt="Demostración de DebtDrop" width="500">
 
 ## Arquitectura
 
