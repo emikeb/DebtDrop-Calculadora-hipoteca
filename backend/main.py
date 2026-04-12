@@ -18,7 +18,8 @@ def calcular_hipoteca(request: MortgageRequest):
     cuota, intereses, total, amortizacion = calculate_mortgage(
         request.capital,
         request.interes_anual,
-        request.plazo_anios
+        request.plazo_anios,
+        request.pagos_extra
     )
     return MortgageResponse(
         cuota_mensual=cuota,

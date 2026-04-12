@@ -7,6 +7,7 @@ const formatter = new Intl.NumberFormat('es-ES', {
 let mortgages = [];
 let chartInstance = null;
 let currentId = 0;
+let extraPaymentCount = 0;
 
 const COLORS = [
     '#6366f1', // Indigo
@@ -16,6 +17,26 @@ const COLORS = [
     '#8b5cf6', // Violet
     '#06b6d4', // Cyan
 ];
+
+document.getElementById('btn-add-extra').addEventListener('click', () => {
+    const container = document.getElementById('extra-payments-container');
+    const rowId = `extra-${extraPaymentCount++}`;
+    
+    const row = document.createElement('div');
+    row.className = 'extra-payment-row';
+    row.id = rowId;
+    
+    row.innerHTML = `
+        <input type="number" placeholder="Mes (ej. 24)" class="ex-mes" min="1" step="1">
+        <input type="number" placeholder="€ (ej. 5000)" class="ex-cantidad" min="1" step="100">
+        <select class="ex-tipo">
+            <option value="plazo">Reducir Plazo</option>
+            <option value="cuota">Reducir Cuota</option>
+        </select>
+        <button type="button" class="btn-remove-row" onclick="document.getElementById('${rowId}').remove()">&times;</button>
+    `;
+    container.appendChild(row);
+});
 
 document.getElementById('btn-calcular').addEventListener('click', async () => {
     const capital = parseFloat(document.getElementById('capital').value);
@@ -30,6 +51,27 @@ document.getElementById('btn-calcular').addEventListener('click', async () => {
         return;
     }
 
+    const extraRows = document.querySelectorAll('.extra-payment-row');
+    let pagos_extra = [];
+    let hasExtraError = false;
+
+    extraRows.forEach(row => {
+        const mes = parseInt(row.querySelector('.ex-mes').value, 10);
+        const cantidad = parseFloat(row.querySelector('.ex-cantidad').value);
+        const tipo = row.querySelector('.ex-tipo').value;
+
+        if (isNaN(mes) || isNaN(cantidad) || mes <= 0 || cantidad <= 0) {
+            hasExtraError = true;
+        } else {
+            pagos_extra.push({ mes, cantidad, tipo });
+        }
+    });
+
+    if (hasExtraError) {
+        errorMsg.textContent = "Revisa los campos de amortización (mes y cantidad deben ser válidos).";
+        return;
+    }
+
     try {
         const response = await fetch('/api/calcular', {
             method: 'POST',
@@ -39,7 +81,8 @@ document.getElementById('btn-calcular').addEventListener('click', async () => {
             body: JSON.stringify({
                 capital: capital,
                 interes_anual: interesAnual,
-                plazo_anios: plazoAnios
+                plazo_anios: plazoAnios,
+                pagos_extra: pagos_extra
             })
         });
 

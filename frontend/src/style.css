@@ -137,6 +137,89 @@ button:hover {
     box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
 }
 
+.extra-payments-section {
+    margin-bottom: 1.5rem;
+    background: rgba(15, 23, 42, 0.4);
+    border: 1px dashed var(--border-color);
+    border-radius: 12px;
+    padding: 1rem;
+}
+
+.extra-payments-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.extra-payments-header label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #cbd5e1;
+    margin: 0;
+}
+
+.btn-small {
+    width: auto;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.75rem;
+    margin-top: 0;
+    background: rgba(99, 102, 241, 0.2);
+    box-shadow: none;
+    border: 1px solid var(--primary);
+}
+
+.btn-small:hover {
+    background: var(--primary);
+    transform: none;
+    box-shadow: none;
+}
+
+.extra-payment-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 30px;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    align-items: center;
+}
+
+.extra-payment-row input[type="number"], .extra-payment-row select {
+    width: 100%;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.5rem;
+    color: var(--text-main);
+    font-size: 0.875rem;
+    outline: none;
+}
+
+.extra-payment-row select {
+    appearance: none;
+    cursor: pointer;
+}
+
+.btn-remove-row {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    margin: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    box-shadow: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.btn-remove-row:hover {
+    background: rgba(239, 68, 68, 0.1);
+    transform: scale(1.05);
+}
+
 /* Right Panel and Components */
 .right-panel {
     display: flex;
