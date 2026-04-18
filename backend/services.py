@@ -1,4 +1,4 @@
-def calculate_mortgage(capital: float, interes_anual: float, plazo_anios: int, pagos_extra: list = None) -> tuple[float, float, float, list]:
+def calculate_mortgage(capital: float, interes_anual: float, plazo_anios: int, pagos_extra: list = None) -> tuple[float, float, float, list, float, int]:
     if pagos_extra is None:
         pagos_extra = []
     
@@ -18,6 +18,7 @@ def calculate_mortgage(capital: float, interes_anual: float, plazo_anios: int, p
         cuota_mensual = capital / meses_restantes
         
     cuota_inicial = cuota_mensual
+    cuota_regular = cuota_mensual
     balance_actual = capital
     amortizacion_anual = [{"year": 0, "balance": round(balance_actual, 2)}]
     
@@ -26,14 +27,15 @@ def calculate_mortgage(capital: float, interes_anual: float, plazo_anios: int, p
     mes = 1
     while balance_actual > 0.001 and mes <= meses_totales:
         interes_pago = balance_actual * interes_mensual
-        capital_pago = cuota_mensual - interes_pago
+        capital_pago = cuota_regular - interes_pago
         
+        cuota_pago = cuota_regular
         if capital_pago > balance_actual:
             capital_pago = balance_actual
-            cuota_mensual = capital_pago + interes_pago
+            cuota_pago = capital_pago + interes_pago
 
         balance_actual -= capital_pago
-        total_pagado += cuota_mensual
+        total_pagado += cuota_pago
         
         if balance_actual < 0:
             balance_actual = 0
@@ -50,9 +52,9 @@ def calculate_mortgage(capital: float, interes_anual: float, plazo_anios: int, p
                     m_rest = meses_totales - mes
                     if m_rest > 0 and balance_actual > 0:
                         if interes_mensual > 0:
-                            cuota_mensual = balance_actual * (interes_mensual * (1 + interes_mensual)**m_rest) / ((1 + interes_mensual)**m_rest - 1)
+                            cuota_regular = balance_actual * (interes_mensual * (1 + interes_mensual)**m_rest) / ((1 + interes_mensual)**m_rest - 1)
                         else:
-                            cuota_mensual = balance_actual / m_rest
+                            cuota_regular = balance_actual / m_rest
 
         if balance_actual < 0:
             balance_actual = 0
@@ -74,4 +76,7 @@ def calculate_mortgage(capital: float, interes_anual: float, plazo_anios: int, p
                 amortizacion_anual.append({"year": y, "balance": 0.0})
 
     total_intereses = total_pagado - capital
-    return round(cuota_inicial, 2), round(total_intereses, 2), round(total_pagado, 2), amortizacion_anual
+    meses_reales = mes if balance_actual <= 0.001 else mes - 1
+    if meses_reales < 1:
+        meses_reales = 1
+    return round(cuota_inicial, 2), round(total_intereses, 2), round(total_pagado, 2), amortizacion_anual, round(cuota_regular, 2), meses_reales

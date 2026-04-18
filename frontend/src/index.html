@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +9,7 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
     <div class="container">
         <!-- Input Panel -->
@@ -39,6 +41,13 @@
                 </div>
             </div>
 
+            <div class="input-group">
+                <label for="nombre-sim">Nombre (Opcional)</label>
+                <div class="input-wrapper">
+                    <input type="text" id="nombre-sim" placeholder="Ej. Hipoteca Fija">
+                </div>
+            </div>
+
             <div class="extra-payments-section">
                 <div class="extra-payments-header">
                     <label>Pagos Anticipados (Opcional)</label>
@@ -57,7 +66,7 @@
             <div class="chart-container">
                 <canvas id="amortizationChart"></canvas>
             </div>
-            
+
             <div id="mortgage-cards-container" class="cards-container">
                 <p class="empty-msg" id="empty-msg">Aún no has añadido ninguna hipoteca para comparar.</p>
             </div>
@@ -65,4 +74,5 @@
     </div>
     <script src="app.js"></script>
 </body>
+
 </html>

@@ -26,4 +26,6 @@ class MortgageResponse(BaseModel):
     total_intereses: float
     pago_total: float
     amortizacion_anual: List[AmortizationYear]
+    cuota_final: Optional[float] = None
+    meses_reales: Optional[int] = None
 

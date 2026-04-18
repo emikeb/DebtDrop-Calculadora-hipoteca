@@ -15,7 +15,7 @@ app.add_middleware(
 
 @app.post("/api/calcular", response_model=MortgageResponse)
 def calcular_hipoteca(request: MortgageRequest):
-    cuota, intereses, total, amortizacion = calculate_mortgage(
+    cuota, intereses, total, amortizacion, cuota_final, meses_reales = calculate_mortgage(
         request.capital,
         request.interes_anual,
         request.plazo_anios,
@@ -25,5 +25,7 @@ def calcular_hipoteca(request: MortgageRequest):
         cuota_mensual=cuota,
         total_intereses=intereses,
         pago_total=total,
-        amortizacion_anual=amortizacion
+        amortizacion_anual=amortizacion,
+        cuota_final=cuota_final,
+        meses_reales=meses_reales
     )
