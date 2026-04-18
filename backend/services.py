@@ -1,82 +1,106 @@
-def calculate_mortgage(capital: float, interes_anual: float, plazo_anios: int, pagos_extra: list = None) -> tuple[float, float, float, list, float, int]:
-    if pagos_extra is None:
-        pagos_extra = []
-    
-    extras_por_mes = {}
-    for p in pagos_extra:
-        if p.mes not in extras_por_mes:
-            extras_por_mes[p.mes] = []
-        extras_por_mes[p.mes].append(p)
+from schemas import MortgageRequest, MortgageResponse
 
-    interes_mensual = (interes_anual / 100) / 12 if interes_anual > 0 else 0
-    meses_totales = plazo_anios * 12
-    meses_restantes = meses_totales
+class MortgageCalculator:
+    """Clase para simular y calcular la amortización de una hipoteca."""
     
-    if interes_mensual > 0:
-        cuota_mensual = capital * (interes_mensual * (1 + interes_mensual)**meses_restantes) / ((1 + interes_mensual)**meses_restantes - 1)
-    else:
-        cuota_mensual = capital / meses_restantes
+    def __init__(self, request: MortgageRequest):
+        self.request = request
+        self.capital = request.capital
+        self.interes_anual = request.interes_anual
+        self.plazo_anios = request.plazo_anios
+        self.pagos_extra = request.pagos_extra or []
         
-    cuota_inicial = cuota_mensual
-    cuota_regular = cuota_mensual
-    balance_actual = capital
-    amortizacion_anual = [{"year": 0, "balance": round(balance_actual, 2)}]
-    
-    total_pagado = 0
-    
-    mes = 1
-    while balance_actual > 0.001 and mes <= meses_totales:
-        interes_pago = balance_actual * interes_mensual
-        capital_pago = cuota_regular - interes_pago
+        # Inicialización de estado
+        self.interes_mensual = (self.interes_anual / 100) / 12 if self.interes_anual > 0 else 0
+        self.meses_totales = self.plazo_anios * 12
         
-        cuota_pago = cuota_regular
-        if capital_pago > balance_actual:
-            capital_pago = balance_actual
+        if self.interes_mensual > 0:
+            self.cuota_mensual = self.capital * (self.interes_mensual * (1 + self.interes_mensual)**self.meses_totales) / ((1 + self.interes_mensual)**self.meses_totales - 1)
+        else:
+            self.cuota_mensual = self.capital / self.meses_totales
+            
+        self.cuota_inicial = self.cuota_mensual
+        self.cuota_regular = self.cuota_mensual
+        self.balance_actual = self.capital
+        self.total_pagado = 0.0
+        self.amortizacion_anual = [{"year": 0, "balance": round(self.balance_actual, 2)}]
+        
+        self.extras_por_mes = {}
+        for p in self.pagos_extra:
+            self.extras_por_mes.setdefault(p.mes, []).append(p)
+
+    def calculate(self) -> MortgageResponse:
+        mes = 1
+        while self.balance_actual > 0.001 and mes <= self.meses_totales:
+            self._process_month(mes)
+            mes += 1
+
+        self._finalize_amortization(mes)
+        
+        total_intereses = self.total_pagado - self.capital
+        meses_reales = mes if self.balance_actual <= 0.001 else mes - 1
+        if meses_reales < 1:
+            meses_reales = 1
+            
+        return MortgageResponse(
+            cuota_mensual=round(self.cuota_inicial, 2),
+            total_intereses=round(total_intereses, 2),
+            pago_total=round(self.total_pagado, 2),
+            amortizacion_anual=self.amortizacion_anual,
+            cuota_final=round(self.cuota_regular, 2),
+            meses_reales=meses_reales
+        )
+
+    def _process_month(self, mes: int):
+        interes_pago = self.balance_actual * self.interes_mensual
+        capital_pago = self.cuota_regular - interes_pago
+        
+        cuota_pago = self.cuota_regular
+        if capital_pago > self.balance_actual:
+            capital_pago = self.balance_actual
             cuota_pago = capital_pago + interes_pago
 
-        balance_actual -= capital_pago
-        total_pagado += cuota_pago
+        self.balance_actual -= capital_pago
+        self.total_pagado += cuota_pago
         
-        if balance_actual < 0:
-            balance_actual = 0
+        if self.balance_actual < 0:
+            self.balance_actual = 0
             
-        if mes in extras_por_mes:
-            for extra in extras_por_mes[mes]:
-                if extra.cantidad > balance_actual:
-                    extra.cantidad = balance_actual
-                
-                balance_actual -= extra.cantidad
-                total_pagado += extra.cantidad
-                
-                if extra.tipo.value == "cuota":
-                    m_rest = meses_totales - mes
-                    if m_rest > 0 and balance_actual > 0:
-                        if interes_mensual > 0:
-                            cuota_regular = balance_actual * (interes_mensual * (1 + interes_mensual)**m_rest) / ((1 + interes_mensual)**m_rest - 1)
-                        else:
-                            cuota_regular = balance_actual / m_rest
+        if mes in self.extras_por_mes:
+            self._apply_extra_payments(mes)
 
-        if balance_actual < 0:
-            balance_actual = 0
+        if self.balance_actual < 0:
+            self.balance_actual = 0
 
+        self._record_amortization(mes)
+
+    def _apply_extra_payments(self, mes: int):
+        for extra in self.extras_por_mes[mes]:
+            if extra.cantidad > self.balance_actual:
+                extra.cantidad = self.balance_actual
+            
+            self.balance_actual -= extra.cantidad
+            self.total_pagado += extra.cantidad
+            
+            if extra.tipo.value == "cuota":
+                m_rest = self.meses_totales - mes
+                if m_rest > 0 and self.balance_actual > 0:
+                    if self.interes_mensual > 0:
+                        self.cuota_regular = self.balance_actual * (self.interes_mensual * (1 + self.interes_mensual)**m_rest) / ((1 + self.interes_mensual)**m_rest - 1)
+                    else:
+                        self.cuota_regular = self.balance_actual / m_rest
+
+    def _record_amortization(self, mes: int):
         if mes % 12 == 0:
-            amortizacion_anual.append({"year": mes // 12, "balance": round(balance_actual, 2)})
-        elif balance_actual == 0:
+            self.amortizacion_anual.append({"year": mes // 12, "balance": round(self.balance_actual, 2)})
+        elif self.balance_actual == 0:
             year_finished_ceil = (mes + 11) // 12
-            for y in range(year_finished_ceil, plazo_anios + 1):
-                if not any(a["year"] == y for a in amortizacion_anual):
-                    amortizacion_anual.append({"year": y, "balance": 0.0})
-            break
-            
-        mes += 1
+            for y in range(year_finished_ceil, self.plazo_anios + 1):
+                if not any(a["year"] == y for a in self.amortizacion_anual):
+                    self.amortizacion_anual.append({"year": y, "balance": 0.0})
 
-    if balance_actual <= 0.001:
-        for y in range((mes // 12) + 1, plazo_anios + 1):
-            if not any(a["year"] == y for a in amortizacion_anual):
-                amortizacion_anual.append({"year": y, "balance": 0.0})
-
-    total_intereses = total_pagado - capital
-    meses_reales = mes if balance_actual <= 0.001 else mes - 1
-    if meses_reales < 1:
-        meses_reales = 1
-    return round(cuota_inicial, 2), round(total_intereses, 2), round(total_pagado, 2), amortizacion_anual, round(cuota_regular, 2), meses_reales
+    def _finalize_amortization(self, mes: int):
+        if self.balance_actual <= 0.001:
+            for y in range((mes // 12) + 1, self.plazo_anios + 1):
+                if not any(a["year"] == y for a in self.amortizacion_anual):
+                    self.amortizacion_anual.append({"year": y, "balance": 0.0})
