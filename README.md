@@ -2,8 +2,17 @@
 
 [![codecov](https://codecov.io/gh/emikeb/DebtDrop/graph/badge.svg?token=5AKV7R4JXK)](https://codecov.io/gh/emikeb/DebtDrop)
 
+Sencilla de usar y muy útil para comparar hipotecas en local sin compartir información en herramientas online y pudiendo modificarla a gusto personal. Usada para mi proceso de hipoteca.
+
 <img src="./assets/amortizaciones.png" alt="Demostración de DebtDrop" width="550">
 <img src="./assets/image_amortizacion.png" alt="Demostración de DebtDrop" width="250">
+
+**¿Por qué usar DebtDrop?**
+- 🚀 **Fácil de usar**: Interfaz funcional y directa, sin distracciones, facil comparar todas las ofertas en la misma interfaz y gráfica.
+
+- 🔒 **Privacidad total**: Se ejecuta en local. No envías ni compartes tus datos financieros con herramientas online de terceros.
+
+- 🛠️ **Personalizable**: Al ser tuya, puedes modificarla y ajustarla a tu gusto personal.
 
 ## Arquitectura
 
